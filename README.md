@@ -106,5 +106,5 @@ And the corresponding Configuration (`config.json`) for our ledger sync would be
 
 ### TODO
 
-[ ] Add more adaptors like MySQL, CouchDB, Google BigQuery
-[ ] Dockerize the system
+- [ ] Add more adaptors like MySQL, CouchDB, Google BigQuery
+- [ ] Dockerize the system
