@@ -70,7 +70,7 @@ message ArticleContainer {
 }
 ```
 
-And the corresponding Configuration for our ledger sync would be 
+And the corresponding Configuration (`config.json`) for our ledger sync would be like below.
 
 ```
 {
@@ -103,3 +103,8 @@ And the corresponding Configuration for our ledger sync would be
   ]
 }
 ```
+
+### TODO
+
+[ ] Add more adaptors like MySQL, CouchDB, Google BigQuery
+[ ] Dockerize the system
