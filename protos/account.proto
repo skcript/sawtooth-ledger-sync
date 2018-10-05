@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+enum ROLES {
+  AUTHOR = 0;
+  EDITOR = 1;
+  READER = 2;
+}
+
+message Account {
+  string public_key = 1;
+  string name = 2;
+  string username = 3;
+  string email = 4;
+  ROLES role = 5;
+  uint32 created_at = 6;
+  uint32 modified_at = 7;
+}
+
+message AccountContainer {
+  repeated Account entries = 1;
+}

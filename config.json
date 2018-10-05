@@ -1,0 +1,29 @@
+{
+  "VALIDATOR_URL": "tcp://localhost:4004",
+  "DB_HOST" : "localhost",
+  "DB_PORT" : 28020,
+  "DB_NAME" : "simpleblog",
+  "RETRY_WAIT" : 5000,
+  "TP_NAMESPACE": "bfe5e2",
+  "DATABASES": [
+    {
+      "name": "accounts",
+      "index": "publicKey",
+      "proto_file": "account.proto",
+      "proto_message_name": "Account",
+      "address_prefix": "01"
+      
+    },
+    {
+      "name": "articles",
+      "index": "articleId",
+      "proto_file": "article.proto",
+      "proto_message_name": "Article",
+      "address_prefix": "02"
+    },
+    {
+      "name": "blocks",
+      "index": "blockId"
+    }
+  ]
+}

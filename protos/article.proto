@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+enum STATUS {
+  DRAFT = 0;
+  APPROVAL_PENDING = 1;
+  PUBLISHED = 2;
+  REMOVED = 3;
+}
+
+message Article {
+  string articleId = 1;
+  string title = 2;
+  string content = 3;
+  string author_id = 4;
+  STATUS status = 5;
+  uint32 created_at = 6;
+  uint32 modified_at = 7;
+}
+
+message ArticleContainer {
+  repeated Article entries = 1;
+}
