@@ -18,47 +18,11 @@
 
 const _ = require('lodash')
 const r = require('rethinkdb')
-const db = require('./')
 const config = require('../config.json');
-
-const addBlockState = (tableName, indexName, indexValue, doc, blockNum) => {
-  return db.modifyTable(tableName, table => {
-    return table
-      .getAll(indexValue, { index: indexName })
-      .filter({ endBlockNum: Number.MAX_SAFE_INTEGER })
-      .coerceTo('array')
-      .do(oldDocs => {
-        return oldDocs
-          .filter({ startBlockNum: blockNum })
-          .coerceTo('array')
-          .do(duplicates => {
-            return r.branch(
-              // If there are duplicates, do nothing
-              duplicates.count().gt(0),
-              duplicates,
-
-              // Otherwise, update the end block on any old docs,
-              // and insert the new one
-              table
-                .getAll(indexValue, { index: indexName })
-                .update({ endBlockNum: blockNum, latest: false })
-                .do(() => {
-                  return table.insert(_.assign({}, doc, {
-                    startBlockNum: blockNum,
-                    latest: true,
-                    endBlockNum: Number.MAX_SAFE_INTEGER
-                  }))
-                })
-            )
-          })
-      })
-  })
-}
+const rethinkDBAdaptor = require('./rethink/state');
 
 const add = (protoName, obj, blockNum) => {
-  var db = config.DATABASES.filter((item) => item.proto_message_name === protoName)[0];
-  return addBlockState(db.name, db.index, obj[db.index],
-    obj, blockNum)
+  return rethinkDBAdaptor.add(protoName, obj, blockNum);
 }
 
 module.exports = {
