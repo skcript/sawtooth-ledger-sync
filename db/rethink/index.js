@@ -18,6 +18,7 @@
 
 const r = require('rethinkdb')
 const config = require('../../config.json');
+const _ = require('lodash')
 
 const HOST = config.DB_HOST
 const PORT = config.DB_PORT
@@ -89,8 +90,94 @@ const modifyTable = (table, query) => {
     })
 }
 
+// Block Functions
+const stateTables = config.DATABASES.map((dbConfig) => dbConfig.name)
+
+const getForkedDocRemover = blockNum => tableName => {
+  return modifyTable(tableName, table => {
+    return table
+      .filter(r.row('startBlockNum').ge(blockNum))
+      .delete()
+      .do(() => table.filter(doc => doc('endBlockNum').ge(blockNum)))
+      .update({ endBlockNum: Number.MAX_SAFE_INTEGER })
+  })
+}
+
+const resolveFork = block => {
+  const defork = getForkedDocRemover(block.blockNum)
+  return modifyTable('blocks', blocks => {
+    return blocks
+      .filter(r.row('blockNum').ge(block.blockNum))
+      .delete()
+      .do(() => blocks.insert(block))
+  })
+    .then(() => Promise.all(stateTables.map(tableName => defork(tableName))))
+    .then(() => block)
+}
+
+const insert = block => {
+  return modifyTable('blocks', blocks => {
+    return blocks
+      .get(block.blockNum)
+      .do(foundBlock => {
+        return r.branch(foundBlock, foundBlock, blocks.insert(block))
+      })
+  })
+    .then(result => {
+      // If the blockNum did not already exist, or had the same id
+      // there is no fork, return the block
+      if (!result.blockId || result.blockId === block.blockId) {
+        return block
+      }
+      return resolveFork(block)
+    })
+}
+
+// State Functions
+const addBlockState = (tableName, indexName, indexValue, doc, blockNum) => {
+  return modifyTable(tableName, table => {
+    return table
+      .getAll(indexValue, { index: indexName })
+      .filter({ endBlockNum: Number.MAX_SAFE_INTEGER })
+      .coerceTo('array')
+      .do(oldDocs => {
+        return oldDocs
+          .filter({ startBlockNum: blockNum })
+          .coerceTo('array')
+          .do(duplicates => {
+            return r.branch(
+              // If there are duplicates, do nothing
+              duplicates.count().gt(0),
+              duplicates,
+
+              // Otherwise, update the end block on any old docs,
+              // and insert the new one
+              table
+                .getAll(indexValue, { index: indexName })
+                .update({ endBlockNum: blockNum, latest: false })
+                .do(() => {
+                  return table.insert(_.assign({}, doc, {
+                    startBlockNum: blockNum,
+                    latest: true,
+                    endBlockNum: Number.MAX_SAFE_INTEGER
+                  }))
+                })
+            )
+          })
+      })
+  })
+}
+
+const add = (protoName, obj, blockNum) => {
+  var db = config.DATABASES.filter((item) => item.proto_message_name === protoName)[0];
+  return addBlockState(db.name, db.index, obj[db.index],
+    obj, blockNum)
+}
+
 module.exports = {
   connect,
   queryTable,
-  modifyTable
+  modifyTable,
+  insert,
+  add
 }

@@ -16,21 +16,20 @@
  */
 'use strict'
 
-const config = require('../config.json');
-const rethinkDBAdaptor = require('./rethink');
+const { getDBAdaptor } = require('./config');
 
 const connect = () => {
-  return rethinkDBAdaptor.connect()
+  return getDBAdaptor().connect()
 }
 
 // Runs a specified query against a database table
 const queryTable = (table, query, removeCursor = true) => {
-  return rethinkDBAdaptor.queryTable(table, query, removeCursor)
+  return getDBAdaptor().queryTable(table, query, removeCursor)
 }
 
 // Use for queries that modify a table, turns error messages into errors
 const modifyTable = (table, query) => {
-  return rethinkDBAdaptor.modifyTable(table, query);
+  return getDBAdaptor().modifyTable(table, query);
 }
 
 module.exports = {

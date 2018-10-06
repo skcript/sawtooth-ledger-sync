@@ -15,12 +15,10 @@
  * ----------------------------------------------------------------------------
  */
 'use strict'
-
-const config = require('../config.json');
-const rethinkDBAdaptor = require('./rethink/blocks');
+const { getDBAdaptor } = require('./config');
 
 const insert = block => {
-  return rethinkDBAdaptor.insert(block);
+  return getDBAdaptor().insert(block);
 }
 
 module.exports = {

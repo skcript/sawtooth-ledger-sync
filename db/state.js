@@ -16,13 +16,11 @@
  */
 'use strict'
 
-const _ = require('lodash')
-const r = require('rethinkdb')
-const config = require('../config.json');
-const rethinkDBAdaptor = require('./rethink/state');
+const { getDBAdaptor } = require('./config');
 
 const add = (protoName, obj, blockNum) => {
-  return rethinkDBAdaptor.add(protoName, obj, blockNum);
+  console.log(`New entry to ${protoName} table : ${JSON.stringify(obj)} \n\n`)
+  return getDBAdaptor().add(protoName, obj, blockNum);
 }
 
 module.exports = {
