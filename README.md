@@ -75,6 +75,7 @@ And the corresponding Configuration (`config.json`) for our ledger sync would be
 ```
 {
   "VALIDATOR_URL": "tcp://localhost:4004",
+  "DB_TYPE" : "RETHINK",
   "DB_HOST" : "localhost",
   "DB_PORT" : 28020,
   "DB_NAME" : "simpleblog",
