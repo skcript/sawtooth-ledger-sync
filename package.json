@@ -24,7 +24,7 @@
   "dependencies": {
     "body-parser": "^1.17.2",
     "js-schema": "^1.0.1",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.19",
     "protobufjs": "^6.8.8",
     "rethinkdb": "^2.3.3",
     "rethinkdbdash": "^2.3.31",
